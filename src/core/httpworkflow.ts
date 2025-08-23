@@ -1,13 +1,13 @@
 import { ZodType } from 'zod';
 import { ZodSchema } from 'zod/v3';
-import BodyReadable from 'undici/types/readable';
 import { Dispatcher, request } from 'undici';
+import BodyReadable from 'undici/types/readable';
 
 import { HeadersType } from '../private';
 import { BasicResponseSchema } from '../schemas/kyodo/basic';
 import { LOGGER } from '../utils/logger';
 import { BASE_API, ORIGIN_HEADERS } from '../constants';
-import { generateXSig, generateXSignature } from '../utils/crypt';
+import { generateHalfDeviceId, generateXSig, generateXSignature } from '../utils/crypt';
 import { DeleteRequestConfig, GetRequestConfig, PostRequestConfig } from '../schemas/httpworkflow';
 
 export class HttpWorkflow {
@@ -19,6 +19,8 @@ export class HttpWorkflow {
             ...headers
         };
     };
+
+    constructor() { this.headers = { 'device-id': generateHalfDeviceId() }; };
 
     private __mergeHeaders = (contentType?: string): HeadersType => {
         const mergedHeaders = JSON.parse(JSON.stringify(this.__headers));

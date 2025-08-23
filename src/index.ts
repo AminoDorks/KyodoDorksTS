@@ -1,0 +1,1 @@
+export { KyodoDorks } from './core/kyododorks';
