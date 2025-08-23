@@ -1,0 +1,50 @@
+{
+  "name": "kyodo.dorks",
+  "version": "1.0.0",
+  "description": "TypeScript API wrapper for Kyodo: Communities & Chats",
+  "keywords": [
+    "kyodo",
+    "typescript",
+    "api",
+    "wrapper",
+    "communities",
+    "chats",
+    "bots",
+    "userbots",
+    "kyododorks",
+    "kyodo.dorks",
+    "kyododorksts",
+    "social",
+    "messenger"
+  ],
+  "homepage": "https://github.com/thatcelt/KyodoDorksTS#readme",
+  "bugs": {
+    "url": "https://github.com/thatcelt/KyodoDorksTS/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/thatcelt/KyodoDorksTS.git"
+  },
+  "license": "MIT",
+  "author": "celt_is_god",
+  "type": "commonjs",
+  "main": "dist/index.js",
+  "private": false,
+  "files": [
+    "dist",
+    "README.MD"
+  ],
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "jsonwebtoken": "^9.0.2",
+    "pino": "^9.9.0",
+    "pino-pretty": "^7.0.0",
+    "undici": "^7.15.0",
+    "zod": "^4.0.17"
+  },
+  "devDependencies": {
+    "@types/jsonwebtoken": "^9.0.10"
+  }
+}
