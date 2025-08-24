@@ -1,26 +1,26 @@
-import { ZodType } from 'zod';
-import { ZodSchema } from 'zod/v3';
+import { ZodObject } from 'zod';
 import { Dispatcher, request } from 'undici';
 import BodyReadable from 'undici/types/readable';
 
 import { HeadersType } from '../private';
-import { BasicResponseSchema } from '../schemas/kyodo/basic';
+import { BasicAppResponseSchema, BasicResponseSchema } from '../schemas/responses/basic';
 import { LOGGER } from '../utils/logger';
-import { BASE_API, ORIGIN_HEADERS } from '../constants';
 import { generateHalfDeviceId, generateXSig, generateXSignature } from '../utils/crypt';
 import { DeleteRequestConfig, GetRequestConfig, PostRequestConfig } from '../schemas/httpworkflow';
+import { KyodoDorksAPIError } from '../utils/exceptions';
+import { API_URL, APP_URL, KYODO_API_HEADERS, KYODO_APP_HEADERS } from '../constants';
 
 export class HttpWorkflow {
-    private __headers: HeadersType = ORIGIN_HEADERS;
+    private __headers: HeadersType = KYODO_API_HEADERS;
 
-    set headers(headers: HeadersType) {
+    constructor() { this.headers = { 'device-id': generateHalfDeviceId() }; };
+
+    set headers (headers: HeadersType) {
         this.__headers = {
             ...this.__headers,
             ...headers
         };
     };
-
-    constructor() { this.headers = { 'device-id': generateHalfDeviceId() }; };
 
     private __mergeHeaders = (contentType?: string): HeadersType => {
         const mergedHeaders = JSON.parse(JSON.stringify(this.__headers));
@@ -53,51 +53,79 @@ export class HttpWorkflow {
         return preparedHeaders;
     };
 
-    private __handleResponse = async <T>(path: string, body: BodyReadable & Dispatcher.BodyMixin, schema: ZodSchema): Promise<T> => {
-        const rawBody = await body.text();
+    private __handleResponse = async <T>(path: string, body: BodyReadable & Dispatcher.BodyMixin, schema: ZodObject): Promise<T> => {
+        const rawBody = JSON.parse(await body.text());
         
         const responseSchema = BasicResponseSchema.parse(rawBody);
-        LOGGER.child({ path: `${BASE_API}${path}` }).info(responseSchema.message);
+        LOGGER.child({ path: path }).info(responseSchema.message);
+
+        if (responseSchema.code != 200) KyodoDorksAPIError.throw(responseSchema.code);
 
         return schema.parse(rawBody) as T;
     };
 
-    public sendGet = async <T extends ZodType>(config: GetRequestConfig, schema: ZodSchema): Promise<T> => {
-        const { body } = await request(`${BASE_API}${config.path}`, {
+    private __handleAppResponse = async <T>(path: string, body: BodyReadable & Dispatcher.BodyMixin, statusCode: number, schema: ZodObject): Promise<T> => {
+        if (statusCode != 200) KyodoDorksAPIError.throw(statusCode);
+        
+        const rawBody = JSON.parse(await body.text());
+        
+        const responseSchema = BasicAppResponseSchema.parse(rawBody);
+        LOGGER.child({ path: path }).info(responseSchema.message);
+
+        return schema.parse(rawBody) as T;
+    };
+
+    public header = (key: string) => this.__headers[key];
+    
+    // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
+    public deleteHeader = (key: string) => delete this.__headers[key];
+
+    public sendGet = async <T>(config: GetRequestConfig, schema: ZodObject): Promise<T> => {
+        const { body } = await request(`${API_URL}${config.path}`, {
             method: 'GET',
             headers: this.__mergeHeaders(config.contentType)
         });
 
-        return this.__handleResponse(config.path, body, schema);
+        return this.__handleResponse(`${API_URL}${config.path}`, body, schema);
     };
 
-    public sendDelete = async <T extends ZodType>(config: DeleteRequestConfig, schema: ZodSchema): Promise<T> => {
-        const { body } = await request(`${BASE_API}${config.path}`, {
+    public sendDelete = async <T>(config: DeleteRequestConfig, schema: ZodObject): Promise<T> => {
+        const { body } = await request(`${API_URL}${config.path}`, {
             method: 'DELETE',
             headers: this.__mergeHeaders()
         });
 
-        return this.__handleResponse(config.path, body, schema);
+        return this.__handleResponse(`${API_URL}${config.path}`, body, schema);
     };
 
-    public sendPost = async <T extends ZodType>(config: PostRequestConfig, schema: ZodSchema): Promise<T> => {
-        const { body } = await request(`${BASE_API}${config.path}`, {
+    public sendPost = async <T>(config: PostRequestConfig, schema: ZodObject): Promise<T> => {
+        const { body } = await request(`${API_URL}${config.path}`, {
             method: 'POST',
             headers: this.__prepareHeaders(config.body, config.contentType),
             body: config.body
         });
 
-        return this.__handleResponse(config.path, body, schema);
+        return this.__handleResponse(`${API_URL}${config.path}`, body, schema);
     };
 
-    public sendXSigPost = async <T extends ZodType>(config: PostRequestConfig, schema: ZodSchema): Promise<T> => {
-        const { body } = await request(`${BASE_API}${config.path}`, {
+    public sendServicedPost = async <T>(config: PostRequestConfig, schema: ZodObject): Promise<T> => {
+        const { statusCode, body } = await request(`${APP_URL}${config.path}`, {
+            method: 'POST',
+            headers: KYODO_APP_HEADERS,
+            body: config.body
+        });
+
+        return this.__handleAppResponse(`${APP_URL}${config.path}`, body, statusCode, schema);
+    };
+
+    public sendXSigPost = async <T>(config: PostRequestConfig, schema: ZodObject): Promise<T> => {
+        const { body } = await request(`${API_URL}${config.path}`, {
             method: 'POST',
             headers: this.__xSigHeaders(config.body, config.contentType),
             body: config.body
         });
 
-        return this.__handleResponse(config.path, body, schema);
+        return this.__handleResponse(`${API_URL}${config.path}`, body, schema);
     };
 
     // TODO: make sendBuffer

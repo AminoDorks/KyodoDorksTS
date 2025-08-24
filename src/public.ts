@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { HttpWorkflow } from './core/httpworkflow';
+import { UserSchema } from './schemas/kyodo/user';
 
 export const ScopeUnion = z.union([z.literal('global'), z.literal('circle')]);
 
@@ -14,7 +15,15 @@ export const KyodoDorksConfigSchema = z.object({
     }).optional(),
 
     enableLogging: z.boolean().default(false).optional(),
-    httpWorkflow: z.instanceof(HttpWorkflow).optional()
+    httpWorkflowInstance: z.instanceof(HttpWorkflow).optional()
+});
+
+export const CachedAccountSchema = z.object({
+    apiToken: z.string(),
+    deviceId: z.string(),
+    email: z.string(),
+    user: UserSchema
 });
 
 export type KyodoDorksConfig = z.infer<typeof KyodoDorksConfigSchema>;
+export type CachedAccount = z.infer<typeof CachedAccountSchema>;

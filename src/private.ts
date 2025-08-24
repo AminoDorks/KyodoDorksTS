@@ -7,9 +7,16 @@ export const XSigCredentialsSchema = z.object({
     data: z.string()
 });
 
+export const TokenPayloadSchema = z.object({
+    auth_token: z.string(),
+    iat: z.number(),
+    exp: z.number()
+});
+
 export type Safe<T> = NonNullable<Required<Readonly<T>>>;
 export type Defined<T> = NonNullable<Required<T>>;
 export type MayUndefined<T> = T | undefined;
 export type HeadersType = Record<string, string>;
 
 export type XSigCredentials = z.infer<typeof XSigCredentialsSchema>;
+export type TokenPayload = z.infer<typeof TokenPayloadSchema>;

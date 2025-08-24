@@ -10,12 +10,6 @@ export const GetRequestConfigSchema = PostRequestConfigSchema.omit({ body: true 
 export const UrlEncodedRequestConfigSchema = GetRequestConfigSchema.required();
 export const DeleteRequestConfigSchema = GetRequestConfigSchema.omit({ contentType: true });
 
-export const RawRequestConfigSchema = z.object({
-    ...PostRequestConfigSchema.shape,
-    method: z.string(),
-    headers: z.record(z.string(), z.string())
-}).optional();
-
 export const BufferRequestConfigSchema = z.object({
     ...UrlEncodedRequestConfigSchema.shape,
     body: z.instanceof(Buffer)
