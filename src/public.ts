@@ -3,6 +3,7 @@ import { HttpWorkflow } from './core/httpworkflow';
 import { UserSchema } from './schemas/kyodo/user';
 
 export const ScopeUnion = z.union([z.literal('global'), z.literal('circle')]);
+export const UsersFilterUnion = z.union([z.literal('all'), z.literal('online')]);
 
 export const KyodoDorksConfigSchema = z.object({
     enviroment: z.object({
@@ -25,5 +26,12 @@ export const CachedAccountSchema = z.object({
     user: UserSchema
 });
 
+export const StartLimitSchema = z.object({
+    start: z.number(),
+    limit: z.number()
+});
+
 export type KyodoDorksConfig = z.infer<typeof KyodoDorksConfigSchema>;
 export type CachedAccount = z.infer<typeof CachedAccountSchema>;
+export type StartLimit = z.infer<typeof StartLimitSchema>;
+export type UsersFilter = z.infer<typeof UsersFilterUnion>;

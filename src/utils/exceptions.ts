@@ -30,6 +30,10 @@ export class KyodoDorksAPIError extends Error {
     }
 
     static readonly errors: Record<number, ApiErrorData> = {
+        1: {
+            message: 'Circle Id is not found. Please set it with .as method',
+            name: 'KyodoDorksAPIError.CircleNotFound'
+        },
         401: {
             message: 'Invalid credentials',
             name: 'KyodoDorksAPIError.InvalidCredentials'
@@ -37,6 +41,10 @@ export class KyodoDorksAPIError extends Error {
         403: {
             message: 'Forbidden. Cloudflare verification failed',
             name: 'KyodoDorksAPIError.Forbidden'
+        },
+        404: {
+            message: 'Oops... We are unable to find this content',
+            name: 'KyodoDorksAPIError.NotFound'
         },
         453: {
             message: 'Invalid Request, please update to the latest version',

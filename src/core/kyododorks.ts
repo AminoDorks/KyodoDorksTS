@@ -3,13 +3,16 @@ import { Safe } from '../private';
 import { CachedAccount, KyodoDorksConfig } from '../public';
 import { HttpWorkflow } from './httpworkflow';
 import initLogger from '../utils/logger';
-import { UploadMediaResponse, UploadMediaResponseSchema } from '../schemas/responses/global';
+import { ExtractLinkResponse, ExtractLinkResponseSchema, UploadMediaResponse, UploadMediaResponseSchema } from '../schemas/responses/global';
+import { DorksUserManager } from '../managers/userManager';
+import { ShareLink } from '../schemas/kyodo/shareLink';
 
 export class KyodoDorks {
     private readonly __config: KyodoDorksConfig;
     private readonly __httpWorkflow: HttpWorkflow;
 
     private __securityManager?: DorksSecurityManager;
+    private __userManager?: DorksUserManager;
 
     constructor(config: KyodoDorksConfig = { enviroment: { scope: 'global' } }) {
         this.__config = config;
@@ -29,13 +32,18 @@ export class KyodoDorks {
         return this.__config;
     };
 
+    get account (): CachedAccount {
+        return this.security.account;
+    };
+
     get security (): DorksSecurityManager {
         if (!this.__securityManager) this.__securityManager = new DorksSecurityManager(this.__config, this.__httpWorkflow);
         return this.__securityManager;
     };
 
-    get account (): CachedAccount {
-        return this.security.account;
+    get user (): DorksUserManager {
+        if (!this.__userManager) this.__userManager = new DorksUserManager(this.__config, this.__httpWorkflow, this.account);
+        return this.__userManager;
     };
 
     public as = (circleId: Safe<string>): KyodoDorks => {
@@ -61,8 +69,31 @@ export class KyodoDorks {
             contentType: 'image/jpeg'
         }, UploadMediaResponseSchema)
 
-        this.account.user.avatar = response.mediaValue;
+        this.account.user.banner = response.mediaValue;
+        this.account.user.bannerTheme = { dominant: response.pallet.dominant, fgColor: response.pallet.fgColor };
 
         return response;
+    };
+
+    public uploadPersonaAvatar = async (buffer: Safe<Buffer>): Promise<UploadMediaResponse> => {
+        return await this.__httpWorkflow.sendBuffer<UploadMediaResponse>({
+            path: `/v1/g/s/media/target/persona-avatar`,
+            body: buffer,
+            contentType: 'image/jpeg'
+        }, UploadMediaResponseSchema);
+    };
+
+    public uploadChatIcon = async (buffer: Safe<Buffer>): Promise<UploadMediaResponse> => {
+        return await this.__httpWorkflow.sendBuffer<UploadMediaResponse>({
+            path: `/v1/g/s/media/target/chat-icon`,
+            body: buffer,
+            contentType: 'image/jpeg'
+        }, UploadMediaResponseSchema);
+    };
+
+    public extractLink = async (link: Safe<string>): Promise<ShareLink> => {
+        return (await this.__httpWorkflow.sendGet<ExtractLinkResponse>({
+            path: `/v1/g/s/share-links${link.split('/s')[1]}`
+        }, ExtractLinkResponseSchema)).shareLink;
     };
 };

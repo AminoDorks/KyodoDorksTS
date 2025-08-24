@@ -32,7 +32,7 @@ export class HttpWorkflow {
         return mergedHeaders;
     };
 
-    private __prepareHeaders = (body: Buffer, contentType?: string): HeadersType => {
+    private __prepareHeaders = (body: Buffer | string, contentType?: string): HeadersType => {
         const headers = this.__mergeHeaders(contentType);
 
         headers['Content-Length'] = body.length.toString();
@@ -40,14 +40,14 @@ export class HttpWorkflow {
         return headers;
     };
 
-    private __xSigHeaders = (body: Buffer, contentType?: string): HeadersType => {
+    private __xSigHeaders = (body: Buffer | string, contentType?: string, bodyToPayload?: string): HeadersType => {
         const preparedHeaders = this.__prepareHeaders(body, contentType);
 
         preparedHeaders['x-sig'] = generateXSig({
             startTime: preparedHeaders['start-time'],
             uid: preparedHeaders['uid'],
             deviceId: preparedHeaders['device-id'],
-            data: JSON.stringify(body)
+            data: bodyToPayload || body
         });
 
         return preparedHeaders;
@@ -101,7 +101,7 @@ export class HttpWorkflow {
     public sendPost = async <T>(config: PostRequestConfig, schema: ZodObject): Promise<T> => {
         const { body } = await request(`${API_URL}${config.path}`, {
             method: 'POST',
-            headers: this.__prepareHeaders(Buffer.from(config.body), config.contentType),
+            headers: this.__prepareHeaders(config.body, config.contentType),
             body: config.body
         });
 
@@ -121,7 +121,7 @@ export class HttpWorkflow {
     public sendXSigPost = async <T>(config: PostRequestConfig, schema: ZodObject): Promise<T> => {
         const { body } = await request(`${API_URL}${config.path}`, {
             method: 'POST',
-            headers: this.__xSigHeaders(Buffer.from(config.body), config.contentType),
+            headers: this.__xSigHeaders(config.body, config.contentType),
             body: config.body
         });
 
@@ -131,7 +131,7 @@ export class HttpWorkflow {
     public sendBuffer = async <T>(config: BufferRequestConfig, schema: ZodObject): Promise<T> => {
         const { body } = await request(`${API_URL}${config.path}`, {
             method: 'POST',
-            headers: this.__xSigHeaders(config.body, config.contentType),
+            headers: this.__xSigHeaders(config.body, config.contentType, JSON.stringify(config.body)),
             body: config.body
         });
 
