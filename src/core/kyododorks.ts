@@ -3,6 +3,7 @@ import { Safe } from '../private';
 import { CachedAccount, KyodoDorksConfig } from '../public';
 import { HttpWorkflow } from './httpworkflow';
 import initLogger from '../utils/logger';
+import { UploadMediaResponse, UploadMediaResponseSchema } from '../schemas/responses/global';
 
 export class KyodoDorks {
     private readonly __config: KyodoDorksConfig;
@@ -39,5 +40,29 @@ export class KyodoDorks {
 
     public as = (circleId: Safe<string>): KyodoDorks => {
         return new KyodoDorks({ ...this.__config, enviroment: { scope: 'circle', circleId }, httpWorkflowInstance: this.__httpWorkflow });
+    };
+
+    public uploadAvatar = async (buffer: Safe<Buffer>): Promise<UploadMediaResponse> => {
+        const response = await this.__httpWorkflow.sendBuffer<UploadMediaResponse>({
+            path: `/v1/g/s/media/target/user-avatar`,
+            body: buffer,
+            contentType: 'image/jpeg'
+        }, UploadMediaResponseSchema)
+
+        this.account.user.avatar = response.mediaValue;
+
+        return response;
+    };
+
+    public uploadBanner = async (buffer: Safe<Buffer>): Promise<UploadMediaResponse> => {
+        const response = await this.__httpWorkflow.sendBuffer<UploadMediaResponse>({
+            path: `/v1/g/s/media/target/user-banner`,
+            body: buffer,
+            contentType: 'image/jpeg'
+        }, UploadMediaResponseSchema)
+
+        this.account.user.avatar = response.mediaValue;
+
+        return response;
     };
 };

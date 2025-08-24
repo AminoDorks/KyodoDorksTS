@@ -4,7 +4,7 @@ export const XSigCredentialsSchema = z.object({
     startTime: z.string(),
     uid: z.string(),
     deviceId: z.string(),
-    data: z.string()
+    data: z.union([z.string(), z.instanceof(Buffer)])
 });
 
 export const TokenPayloadSchema = z.object({
