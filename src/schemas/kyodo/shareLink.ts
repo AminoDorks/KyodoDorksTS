@@ -2,7 +2,7 @@ import { z } from 'zod';
 
 export const ShareLinkSchema = z.object({
     id: z.string(),
-    circleId: z.string(),
+    circleId: z.string().optional(),
     objectId: z.string(),
     objectType: z.number(),
     shareLink: z.string(),

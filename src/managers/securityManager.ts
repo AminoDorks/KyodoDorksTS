@@ -20,6 +20,7 @@ export class DorksSecurityManager implements DorksManagerImpl {
     constructor(config: KyodoDorksConfig, httpWorkflow: HttpWorkflow) {
         this.config = config;
         this.httpWorkflow = httpWorkflow;
+        this.__account = config.account;
     };
 
     get account (): CachedAccount {
@@ -42,7 +43,6 @@ export class DorksSecurityManager implements DorksManagerImpl {
                 'uid': cachedAccount.user.id
             };
             this.__account = cachedAccount;
-
             return;
         } else if (cachedAccount && tokenHasExpired(cachedAccount.apiToken)) this.httpWorkflow.headers = { 'device-id': cachedAccount.deviceId };
 

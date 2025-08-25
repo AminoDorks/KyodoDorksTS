@@ -1,7 +1,7 @@
 import { HttpWorkflow } from '../core/httpworkflow';
 import { DorksManagerImpl } from '../interfaces/manager';
 import { Safe } from '../private';
-import { CachedAccount, KyodoDorksConfig, StartLimit, UsersFilter } from '../public';
+import { CachedAccount, KyodoDorksConfig, Role, StartLimit, UsersFilter } from '../public';
 import { User } from '../schemas/kyodo/user';
 import { BasicResponse, BasicResponseSchema } from '../schemas/responses/basic';
 import { GetUserResponse, GetUserResponseSchema, GetUsersResponse, GetUsersResponseSchema } from '../schemas/responses/impl';
@@ -35,11 +35,11 @@ export class DorksUserManager implements DorksManagerImpl {
         }, GetUserResponseSchema);
     };
 
-    public getMany = async (startLimit: StartLimit = { start: 0, limit: 15 }, filter: UsersFilter = 'all'): Promise<User[]> => {
+    public getMany = async (startLimit: StartLimit = { start: 0, limit: 15 }, filter: UsersFilter = 'all', role: Role = 0): Promise<User[]> => {
         if (!this.config.enviroment.circleId) KyodoDorksAPIError.throw(1);
 
         return (await this.httpWorkflow.sendGet<GetUsersResponse>({
-            path: `${this.endpoint}/users?limit=${startLimit.limit}&start=${startLimit.start}&role=&q=&filter=${filter}`
+            path: `${this.endpoint}/users?limit=${startLimit.limit}&start=${startLimit.start}&role=${role}&q=&filter=${filter}`
         }, GetUsersResponseSchema)).users;
     };
 
@@ -50,4 +50,11 @@ export class DorksUserManager implements DorksManagerImpl {
     public avatar = async (avatar: Safe<string>): Promise<BasicResponse> => { return await this.__editProfileBuilder(JSON.stringify({ avatar })); };
 
     public banner = async (banner: Safe<string>): Promise<BasicResponse> => { return await this.__editProfileBuilder(JSON.stringify({ banner })); };
+
+    public followStatus = async (userId: Safe<string>): Promise<BasicResponse> => {
+        return await this.httpWorkflow.sendXSigPost<BasicResponse>({
+            path: `${this.endpoint}/users/${userId}/follow/status`,
+            body: JSON.stringify({})
+        }, BasicResponseSchema);
+    };
 };

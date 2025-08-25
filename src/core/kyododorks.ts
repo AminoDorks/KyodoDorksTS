@@ -1,11 +1,15 @@
 import { DorksSecurityManager } from '../managers/securityManager';
 import { Safe } from '../private';
-import { CachedAccount, KyodoDorksConfig } from '../public';
+import { KyodoDorksConfig } from '../public';
 import { HttpWorkflow } from './httpworkflow';
 import initLogger from '../utils/logger';
-import { ExtractLinkResponse, ExtractLinkResponseSchema, UploadMediaResponse, UploadMediaResponseSchema } from '../schemas/responses/global';
+import { ExtractLinkResponse, ExtractLinkResponseSchema, GetCirclesResponse, UploadMediaResponse, UploadMediaResponseSchema } from '../schemas/responses/global';
 import { DorksUserManager } from '../managers/userManager';
 import { ShareLink } from '../schemas/kyodo/shareLink';
+import { DorksCircleManager } from '../managers/circleManager';
+import { GetCircleResponseSchema, GetExploreResponse, GetExploreResponseSchema } from '../schemas/responses/circle';
+import { DorksChatManager } from '../managers/chatManager';
+import { Circle } from '../schemas/kyodo/circle';
 
 export class KyodoDorks {
     private readonly __config: KyodoDorksConfig;
@@ -13,6 +17,8 @@ export class KyodoDorks {
 
     private __securityManager?: DorksSecurityManager;
     private __userManager?: DorksUserManager;
+    private __circleManager?: DorksCircleManager;
+    private __chatManager?: DorksChatManager;
 
     constructor(config: KyodoDorksConfig = { enviroment: { scope: 'global' } }) {
         this.__config = config;
@@ -32,68 +38,73 @@ export class KyodoDorks {
         return this.__config;
     };
 
-    get account (): CachedAccount {
-        return this.security.account;
-    };
-
     get security (): DorksSecurityManager {
         if (!this.__securityManager) this.__securityManager = new DorksSecurityManager(this.__config, this.__httpWorkflow);
         return this.__securityManager;
     };
 
     get user (): DorksUserManager {
-        if (!this.__userManager) this.__userManager = new DorksUserManager(this.__config, this.__httpWorkflow, this.account);
+        if (!this.__userManager) this.__userManager = new DorksUserManager(this.__config, this.__httpWorkflow, this.__config.account || this.security.account);
         return this.__userManager;
     };
 
+    get circle (): DorksCircleManager {
+        if (!this.__circleManager) this.__circleManager = new DorksCircleManager(this.__config, this.__httpWorkflow);
+        return this.__circleManager;
+    };
+
+    get chat (): DorksChatManager {
+        if (!this.__chatManager) this.__chatManager = new DorksChatManager(this.__config, this.__httpWorkflow);
+        return this.__chatManager;
+    };
+
     public as = (circleId: Safe<string>): KyodoDorks => {
-        return new KyodoDorks({ ...this.__config, enviroment: { scope: 'circle', circleId }, httpWorkflowInstance: this.__httpWorkflow });
+        return new KyodoDorks({ ...this.__config, enviroment: { scope: 'circle', circleId }, httpWorkflowInstance: this.__httpWorkflow, account: this.security.account });
+    };
+
+    private __uploadMedia = async (buffer: Safe<Buffer>, _endpoint: string): Promise<UploadMediaResponse> => {
+        return await this.__httpWorkflow.sendBuffer<UploadMediaResponse>({
+            path: `/v1/g/s/media/target/${_endpoint}`,
+            body: buffer,
+            contentType: 'image/jpeg'
+        }, UploadMediaResponseSchema);
     };
 
     public uploadAvatar = async (buffer: Safe<Buffer>): Promise<UploadMediaResponse> => {
-        const response = await this.__httpWorkflow.sendBuffer<UploadMediaResponse>({
-            path: `/v1/g/s/media/target/user-avatar`,
-            body: buffer,
-            contentType: 'image/jpeg'
-        }, UploadMediaResponseSchema)
-
-        this.account.user.avatar = response.mediaValue;
-
-        return response;
+        return await this.__uploadMedia(buffer, 'user-avatar');
     };
 
     public uploadBanner = async (buffer: Safe<Buffer>): Promise<UploadMediaResponse> => {
-        const response = await this.__httpWorkflow.sendBuffer<UploadMediaResponse>({
-            path: `/v1/g/s/media/target/user-banner`,
-            body: buffer,
-            contentType: 'image/jpeg'
-        }, UploadMediaResponseSchema)
-
-        this.account.user.banner = response.mediaValue;
-        this.account.user.bannerTheme = { dominant: response.pallet.dominant, fgColor: response.pallet.fgColor };
-
-        return response;
-    };
-
-    public uploadPersonaAvatar = async (buffer: Safe<Buffer>): Promise<UploadMediaResponse> => {
-        return await this.__httpWorkflow.sendBuffer<UploadMediaResponse>({
-            path: `/v1/g/s/media/target/persona-avatar`,
-            body: buffer,
-            contentType: 'image/jpeg'
-        }, UploadMediaResponseSchema);
+        return await this.__uploadMedia(buffer, 'user-banner');
     };
 
     public uploadChatIcon = async (buffer: Safe<Buffer>): Promise<UploadMediaResponse> => {
-        return await this.__httpWorkflow.sendBuffer<UploadMediaResponse>({
-            path: `/v1/g/s/media/target/chat-icon`,
-            body: buffer,
-            contentType: 'image/jpeg'
-        }, UploadMediaResponseSchema);
+        return await this.__uploadMedia(buffer, 'chat-icon');
+    };
+
+    public uploadChatBackground = async (buffer: Safe<Buffer>): Promise<UploadMediaResponse> => {
+        return await this.__uploadMedia(buffer, 'chat-background');
+    };
+
+    public uploadChatMessage = async (buffer: Safe<Buffer>): Promise<UploadMediaResponse> => {
+        return await this.__uploadMedia(buffer, 'chat-message');
     };
 
     public extractLink = async (link: Safe<string>): Promise<ShareLink> => {
         return (await this.__httpWorkflow.sendGet<ExtractLinkResponse>({
             path: `/v1/g/s/share-links${link.split('/s')[1]}`
         }, ExtractLinkResponseSchema)).shareLink;
+    };
+
+    public getExploredCircles = async (showNsfw: Safe<boolean> = false): Promise<GetExploreResponse> => {
+        return await this.__httpWorkflow.sendGet<GetExploreResponse>({
+            path: `/v1/g/s/homefeed/discovery/explore?showNsfw=${showNsfw}`
+        }, GetExploreResponseSchema);
+    };
+
+    public getCircles = async (limit: Safe<number> = 100): Promise<Circle[]> => {
+        return (await this.__httpWorkflow.sendGet<GetCirclesResponse>({
+            path: `/v1/g/s/homefeed/joined?limit=${limit}`
+        }, GetCircleResponseSchema)).circles;
     };
 };

@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { FrameSchema } from './frame';
 
 export const UserSchema = z.object({
     id: z.string(),
@@ -28,11 +29,11 @@ export const UserSchema = z.object({
     }),
     isOnline: z.boolean(),
     lastOnline: z.string(),
-    bio: z.string(),
-    followerCount: z.number(),
-    followingCount: z.number(),
-    commentCount: z.number(),
-    createdTime: z.string(),
+    avatarFrame: z.optional(FrameSchema),
+    bio: z.string().optional(),
+    followerCount: z.number().optional(),
+    followingCount: z.number().optional(),
+    commentCount: z.number().optional()
 });
 
 export type User = z.infer<typeof UserSchema>;

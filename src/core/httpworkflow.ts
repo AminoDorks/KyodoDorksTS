@@ -5,7 +5,7 @@ import BodyReadable from 'undici/types/readable';
 import { HeadersType } from '../private';
 import { BasicAppResponseSchema, BasicResponseSchema } from '../schemas/responses/basic';
 import { LOGGER } from '../utils/logger';
-import { generateHalfDeviceId, generateXSig, generateXSignature } from '../utils/crypt';
+import { generateRandomValue, generateXSig, generateXSignature } from '../utils/crypt';
 import { BufferRequestConfig, DeleteRequestConfig, GetRequestConfig, PostRequestConfig } from '../schemas/httpworkflow';
 import { KyodoDorksAPIError } from '../utils/exceptions';
 import { API_URL, APP_URL, KYODO_API_HEADERS, KYODO_APP_HEADERS } from '../constants';
@@ -13,7 +13,7 @@ import { API_URL, APP_URL, KYODO_API_HEADERS, KYODO_APP_HEADERS } from '../const
 export class HttpWorkflow {
     private __headers: HeadersType = KYODO_API_HEADERS;
 
-    constructor() { this.headers = { 'device-id': generateHalfDeviceId() }; };
+    constructor() { this.headers = { 'device-id': generateRandomValue() }; };
 
     set headers (headers: HeadersType) {
         this.__headers = {
@@ -32,16 +32,14 @@ export class HttpWorkflow {
         return mergedHeaders;
     };
 
-    private __prepareHeaders = (body: Buffer | string, contentType?: string): HeadersType => {
+    private __prepareHeaders = (contentType?: string): HeadersType => {
         const headers = this.__mergeHeaders(contentType);
-
-        headers['Content-Length'] = body.length.toString();
 
         return headers;
     };
 
     private __xSigHeaders = (body: Buffer | string, contentType?: string, bodyToPayload?: string): HeadersType => {
-        const preparedHeaders = this.__prepareHeaders(body, contentType);
+        const preparedHeaders = this.__prepareHeaders(contentType);
 
         preparedHeaders['x-sig'] = generateXSig({
             startTime: preparedHeaders['start-time'],
@@ -101,7 +99,7 @@ export class HttpWorkflow {
     public sendPost = async <T>(config: PostRequestConfig, schema: ZodObject): Promise<T> => {
         const { body } = await request(`${API_URL}${config.path}`, {
             method: 'POST',
-            headers: this.__prepareHeaders(config.body, config.contentType),
+            headers: this.__prepareHeaders(config.contentType),
             body: config.body
         });
 

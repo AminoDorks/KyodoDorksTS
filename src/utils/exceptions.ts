@@ -39,12 +39,16 @@ export class KyodoDorksAPIError extends Error {
             name: 'KyodoDorksAPIError.InvalidCredentials'
         },
         403: {
-            message: 'Forbidden. Cloudflare verification failed',
+            message: 'Forbidden',
             name: 'KyodoDorksAPIError.Forbidden'
         },
         404: {
             message: 'Oops... We are unable to find this content',
             name: 'KyodoDorksAPIError.NotFound'
+        },
+        429: {
+            message: 'Too many requests',
+            name: 'KyodoDorksAPIError.TooManyRequests'
         },
         453: {
             message: 'Invalid Request, please update to the latest version',

@@ -4,7 +4,7 @@ import { createHash } from 'crypto';
 import { SIGNATURE_KEY } from '../constants';
 import { TokenPayloadSchema, XSigCredentials } from '../private';
 
-export const generateHalfDeviceId = (): string => { return Math.random().toString(36).substring(2, 15); };
+export const generateRandomValue = (): string => { return Math.random().toString(36).substring(2, 15); };
 
 export const generateXSignature = (): string => {
     return sign({ exp: Date.now(), typeof: 'xSig' }, SIGNATURE_KEY, {
