@@ -1,4 +1,5 @@
 import { z } from 'zod';
+
 import { PalletSchema } from './pallet';
 
 export const FrameSchema = z.object({

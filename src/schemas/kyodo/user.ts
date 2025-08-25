@@ -1,4 +1,5 @@
 import { z } from 'zod';
+
 import { FrameSchema } from './frame';
 
 export const UserSchema = z.object({

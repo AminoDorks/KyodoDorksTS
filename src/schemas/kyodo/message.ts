@@ -1,4 +1,5 @@
 import { z } from 'zod';
+
 import { MemberSchema } from './member';
 
 export const MessageSchema = z.object({

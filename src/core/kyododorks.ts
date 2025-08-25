@@ -2,7 +2,6 @@ import { DorksSecurityManager } from '../managers/securityManager';
 import { Safe } from '../private';
 import { KyodoDorksConfig } from '../public';
 import { HttpWorkflow } from './httpworkflow';
-import initLogger from '../utils/logger';
 import { ExtractLinkResponse, ExtractLinkResponseSchema, GetCirclesResponse, UploadMediaResponse, UploadMediaResponseSchema } from '../schemas/responses/global';
 import { DorksUserManager } from '../managers/userManager';
 import { ShareLink } from '../schemas/kyodo/shareLink';
@@ -10,6 +9,7 @@ import { DorksCircleManager } from '../managers/circleManager';
 import { GetCircleResponseSchema, GetExploreResponse, GetExploreResponseSchema } from '../schemas/responses/circle';
 import { DorksChatManager } from '../managers/chatManager';
 import { Circle } from '../schemas/kyodo/circle';
+import initLogger from '../utils/logger';
 
 export class KyodoDorks {
     private readonly __config: KyodoDorksConfig;

@@ -4,10 +4,10 @@ import { Safe } from '../private';
 import { CachedAccount, KyodoDorksConfig } from '../public';
 import { BasicAppResponse, BasicAppResponseSchema, BasicResponse, BasicResponseSchema } from '../schemas/responses/basic';
 import { AuthorizeResponse, AuthorizeResponseSchema } from '../schemas/responses/global';
-import cache from '../utils/cache';
 import { tokenHasExpired } from '../utils/crypt';
 import { KyodoDorksAPIError } from '../utils/exceptions';
 import { LOGGER } from '../utils/logger';
+import cache from '../utils/cache';
 
 export class DorksSecurityManager implements DorksManagerImpl {
     endpoint = '/v1/g/s';

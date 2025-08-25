@@ -1,7 +1,7 @@
 export interface ApiErrorData {
   message: string;
   name?: string;
-}
+};
 
 export class KyodoDorksAPIError extends Error {
     public readonly code: number;
@@ -13,21 +13,21 @@ export class KyodoDorksAPIError extends Error {
 
         if (Error.captureStackTrace) {
             Error.captureStackTrace(this, KyodoDorksAPIError);
-        }
-    }
+        };
+    };
 
     static get(code: number): KyodoDorksAPIError | null {
         const data = KyodoDorksAPIError.errors[code];
 
         return data ? new KyodoDorksAPIError(code, data) : null;
-    }
+    };
 
     static throw(code: number): never {
         const error = this.get(code);
         if (error) throw error;
 
         throw new KyodoDorksAPIError(code, { message: `Unknown error code: ${code}.` });
-    }
+    };
 
     static readonly errors: Record<number, ApiErrorData> = {
         1: {

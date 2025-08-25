@@ -1,13 +1,13 @@
 import { writeFileSync, readFileSync, existsSync } from 'fs';
-import { CachedAccount } from '../public';
 
+import { CachedAccount } from '../public';
 
 class CacheManager {
     private cachedUsers: Record<string, CachedAccount> = {};
 
     constructor() {
         if (existsSync('cache.json')) this.cachedUsers = JSON.parse(readFileSync('cache.json').toString());
-    }
+    };
 
     private __saveCache = (): void => {
         writeFileSync('cache.json', JSON.stringify(this.cachedUsers, null, 4));

@@ -1,4 +1,5 @@
 import { z } from 'zod';
+
 import { TopicSchema } from './topic';
 import { PalletSchema } from './pallet';
 import { UserSchema } from './user';
@@ -65,7 +66,7 @@ export const BannerMetaCircleSchema = z.object({
     dau: z.number(),
     theme: PalletSchema,
     createdTime: z.string(),
-})
+});
 
 export type Circle = z.infer<typeof CircleSchema>;
 export type BannerMetaCircle = z.infer<typeof BannerMetaCircleSchema>;
