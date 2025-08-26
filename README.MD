@@ -30,7 +30,7 @@ KyodoDorks contains a many features
 ## Getting Started
 ---------------
 
-To get started with AminoDorks, follow these steps:
+To get started with KyodoDorks, follow these steps:
 1. Initialize npm package: `npm init`
 2. Install TypeScript: `npm i -g typescript`
 3. Initialize TypeScript config and configure it: `tsc --init`
@@ -84,4 +84,4 @@ Contributions are welcome! Please submit a pull request with your changes.
 ## License
 -------
 
-AminoDorksTS is licensed under the MIT License. See LICENSE for more information.
+KyodoDorksTS is licensed under the MIT License. See LICENSE for more information.
