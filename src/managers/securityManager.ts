@@ -116,8 +116,8 @@ export class DorksSecurityManager implements DorksManagerImpl {
         }, BasicAppResponseSchema);
     };
 
-    public verifyDevice = async (token: Safe<string>, accountId?: string): Promise<BasicAppResponse> => {
-        return await this.httpWorkflow.sendServicedPost<BasicAppResponse>({
+    public verifyDevice = async (password: Safe<string>, token: Safe<string>, accountId?: string): Promise<BasicAppResponse> => {
+        const response = await this.httpWorkflow.sendServicedPost<BasicAppResponse>({
             path: `/account/2fa-email`,
             body: JSON.stringify({
                 accountId: accountId || this.account.user.id,
@@ -126,5 +126,7 @@ export class DorksSecurityManager implements DorksManagerImpl {
                 serverVersion: '1'
             })
         }, BasicAppResponseSchema);
+
+        return response;
     };
 };

@@ -4,7 +4,6 @@ import { CURRENT_VERSION, TELEGRAM_URL } from './constants';
 export { KyodoDorks } from './core/kyododorks';
 export { KyodoDorksAPIError } from './utils/exceptions';
 
-
 console.log(`\x1b[34mVisit our community:\x1b[32m ${TELEGRAM_URL}\x1b[0m`);
 exec('npm view kyodo.dorks version', (error, stdout, stderr) => {
     if (error) {
