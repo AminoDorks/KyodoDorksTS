@@ -1,5 +1,10 @@
 import { z } from 'zod';
 
+export enum ChatType {
+    GROUP = 1,
+    DIRECT = 0
+};
+
 export const XSigCredentialsSchema = z.object({
     startTime: z.string(),
     uid: z.string(),

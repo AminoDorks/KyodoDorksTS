@@ -10,6 +10,7 @@ import { GetCircleResponseSchema, GetExploreResponse, GetExploreResponseSchema }
 import { DorksChatManager } from '../managers/chatManager';
 import { Circle } from '../schemas/kyodo/circle';
 import initLogger from '../utils/logger';
+import { DorksPostManager } from '../managers/postManager';
 
 export class KyodoDorks {
     private readonly __config: KyodoDorksConfig;
@@ -19,6 +20,7 @@ export class KyodoDorks {
     private __userManager?: DorksUserManager;
     private __circleManager?: DorksCircleManager;
     private __chatManager?: DorksChatManager;
+    private __postManager?: DorksPostManager;
 
     constructor(config: KyodoDorksConfig = { enviroment: { scope: 'global' } }) {
         this.__config = config;
@@ -58,6 +60,11 @@ export class KyodoDorks {
         return this.__chatManager;
     };
 
+    get post (): DorksPostManager {
+        if (!this.__postManager) this.__postManager = new DorksPostManager(this.__config, this.__httpWorkflow);
+        return this.__postManager;
+    };
+
     public as = (circleId: Safe<string>): KyodoDorks => {
         return new KyodoDorks({ ...this.__config, enviroment: { scope: 'circle', circleId }, httpWorkflowInstance: this.__httpWorkflow, account: this.security.account });
     };
@@ -88,6 +95,14 @@ export class KyodoDorks {
 
     public uploadChatMessage = async (buffer: Safe<Buffer>): Promise<UploadMediaResponse> => {
         return await this.__uploadMedia(buffer, 'chat-message');
+    };
+
+    public uploadPostBackground = async (buffer: Safe<Buffer>): Promise<UploadMediaResponse> => {
+        return await this.__uploadMedia(buffer, 'post-background');
+    };
+
+    public uploadPostMedia = async (buffer: Safe<Buffer>): Promise<UploadMediaResponse> => {
+        return await this.__uploadMedia(buffer, 'post-media');
     };
 
     public extractLink = async (link: Safe<string>): Promise<ShareLink> => {

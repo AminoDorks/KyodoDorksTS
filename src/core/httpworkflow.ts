@@ -57,7 +57,7 @@ export class HttpWorkflow {
         const responseSchema = BasicResponseSchema.parse(rawBody);
         LOGGER.child({ path: path }).info(responseSchema.message);
 
-        if (responseSchema.code != 200) KyodoDorksAPIError.throw(responseSchema.code);
+        if (responseSchema.code != 200) KyodoDorksAPIError.throw(responseSchema.code, responseSchema.message);
 
         return schema.parse(rawBody) as T;
     };

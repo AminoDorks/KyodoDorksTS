@@ -106,12 +106,24 @@ export class DorksSecurityManager implements DorksManagerImpl {
         return response;
     };
 
-    public verifyEmail = async (accountId: Safe<string>, token: Safe<string>): Promise<BasicAppResponse> => {
+    public verifyEmail = async (token: Safe<string>, accountId?: string): Promise<BasicAppResponse> => {
         return await this.httpWorkflow.sendServicedPost<BasicAppResponse>({
             path: `/account/verify-email`,
             body: JSON.stringify({
-                accountId,
+                accountId: accountId || this.account.user.id,
                 token
+            })
+        }, BasicAppResponseSchema);
+    };
+
+    public verifyDevice = async (token: Safe<string>, accountId?: string): Promise<BasicAppResponse> => {
+        return await this.httpWorkflow.sendServicedPost<BasicAppResponse>({
+            path: `/account/2fa-email`,
+            body: JSON.stringify({
+                accountId: accountId || this.account.user.id,
+                token,
+                deviceId: this.httpWorkflow.header('device-id'),
+                serverVersion: '1'
             })
         }, BasicAppResponseSchema);
     };

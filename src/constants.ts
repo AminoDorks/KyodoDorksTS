@@ -3,6 +3,8 @@
 export const API_URL = 'https://api.kyodo.app';
 export const APP_URL = 'https://kyodo.app';
 export const SIGNATURE_KEY = '9d93933f-7864-4872-96b2-9541ac03cf6c';
+export const CURRENT_VERSION = '1.0.0';
+export const TELEGRAM_URL = 'https://t.me/aminodorks';
 
 // Structures
 

@@ -1,13 +1,13 @@
-import { HttpWorkflow } from "../core/httpworkflow";
-import { DorksManagerImpl } from "../interfaces/manager";
-import { Safe } from "../private";
-import { KyodoDorksConfig, MessageType, StartLimit } from "../public";
-import { Chat } from "../schemas/kyodo/chat";
-import { MessageItem } from "../schemas/kyodo/messageItem";
-import { BasicResponse, BasicResponseSchema } from "../schemas/responses/basic";
-import { GetChatResponse, GetChatResponseSchema, GetChatsResponse, GetChatsResponseSchema, SendMessageResponse, SendMessageResponseSchema } from "../schemas/responses/impl";
-import { generateRandomValue } from "../utils/crypt";
-import { KyodoDorksAPIError } from "../utils/exceptions";
+import { HttpWorkflow } from '../core/httpworkflow';
+import { DorksManagerImpl } from '../interfaces/manager';
+import { ChatType, Safe } from '../private';
+import { KyodoDorksConfig, MessageType, StartLimit } from '../public';
+import { Chat } from '../schemas/kyodo/chat';
+import { MessageItem } from '../schemas/kyodo/messageItem';
+import { BasicResponse, BasicResponseSchema } from '../schemas/responses/basic';
+import { GetChatResponse, GetChatResponseSchema, GetChatsResponse, GetChatsResponseSchema, SendMessageResponse, SendMessageResponseSchema } from '../schemas/responses/impl';
+import { generateRandomValue } from '../utils/crypt';
+import { KyodoDorksAPIError } from '../utils/exceptions';
 
 export class DorksChatManager implements DorksManagerImpl {
     endpoint = '/v1/g/s';
@@ -42,10 +42,10 @@ export class DorksChatManager implements DorksManagerImpl {
         }, GetChatResponseSchema)).chat;
     };
 
-    public createDM = async (invitedIds: Safe<string[]>): Promise<Chat> => {
+    public createGroup = async (invitedIds: Safe<string[]>, type: ChatType = 1): Promise<Chat> => {
         return (await this.httpWorkflow.sendXSigPost<GetChatResponse>({
             path: `${this.endpoint}/chats`,
-            body: JSON.stringify({ invitedIds, type: 0 })
+            body: JSON.stringify({ invitedIds, type })
         }, GetChatResponseSchema)).chat;
     };
 
@@ -131,6 +131,26 @@ export class DorksChatManager implements DorksManagerImpl {
     public deleteMessage = async (chatId: Safe<string>, messageId: Safe<string>): Promise<BasicResponse> => {
         return await this.httpWorkflow.sendDelete<BasicResponse>({
             path: `${this.endpoint}/chats/${chatId}/messages/${messageId}`
+        }, BasicResponseSchema);
+    };
+
+    public kick = async (chatId: Safe<string>, userId: Safe<string>): Promise<BasicResponse> => {
+        return await this.httpWorkflow.sendDelete<BasicResponse>({
+            path: `${this.endpoint}/chats/${chatId}/members/${userId}`
+        }, BasicResponseSchema);
+    };
+
+    public amnesty = async (chatId: Safe<string>, userId: Safe<string>): Promise<BasicResponse> => {
+        return await this.httpWorkflow.sendXSigPost<BasicResponse>({
+            path: `${this.endpoint}/chats/${chatId}/members/${userId}/unkick`,
+            body: JSON.stringify({})
+        }, BasicResponseSchema);
+    };
+
+    public invite = async (chatId: Safe<string>, invitedIds: Safe<string[]>): Promise<BasicResponse> => {
+        return await this.httpWorkflow.sendXSigPost<BasicResponse>({
+            path: `${this.endpoint}/chats/${chatId}/members/invite`,
+            body: JSON.stringify({ invitedIds })
         }, BasicResponseSchema);
     };
 };

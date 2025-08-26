@@ -6,9 +6,9 @@ export interface ApiErrorData {
 export class KyodoDorksAPIError extends Error {
     public readonly code: number;
 
-    constructor(code: number, data: ApiErrorData) {
-        super(data.message);
-        this.name = data.name || `AminoDorksAPIError.${code}`;
+    constructor(code: number, data: ApiErrorData, message?: string) {
+        super(message || data.message);
+        this.name = data.name || `KyodoDorksAPIError.${code}`;
         this.code = code;
 
         if (Error.captureStackTrace) {
@@ -16,14 +16,14 @@ export class KyodoDorksAPIError extends Error {
         };
     };
 
-    static get(code: number): KyodoDorksAPIError | null {
+    static get(code: number, message?: string): KyodoDorksAPIError | null {
         const data = KyodoDorksAPIError.errors[code];
 
-        return data ? new KyodoDorksAPIError(code, data) : null;
+        return data ? new KyodoDorksAPIError(code, data, message) : null;
     };
 
-    static throw(code: number): never {
-        const error = this.get(code);
+    static throw(code: number, message?: string): never {
+        const error = this.get(code, message);
         if (error) throw error;
 
         throw new KyodoDorksAPIError(code, { message: `Unknown error code: ${code}.` });
@@ -33,6 +33,10 @@ export class KyodoDorksAPIError extends Error {
         1: {
             message: 'Circle Id is not found. Please set it with .as method',
             name: 'KyodoDorksAPIError.CircleNotFound'
+        },
+        400: {
+            message: 'Bad Request',
+            name: 'KyodoDorksAPIError.BadRequest'
         },
         401: {
             message: 'Invalid credentials',

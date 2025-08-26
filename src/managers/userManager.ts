@@ -35,11 +35,11 @@ export class DorksUserManager implements DorksManagerImpl {
         }, GetUserResponseSchema);
     };
 
-    public getMany = async (startLimit: StartLimit = { start: 0, limit: 15 }, filter: UsersFilter = 'all', role: Role = 0): Promise<User[]> => {
+    public getMany = async (startLimit: StartLimit = { start: 0, limit: 15 }, filter: UsersFilter = 'all', role?: Role): Promise<User[]> => {
         if (!this.config.enviroment.circleId) KyodoDorksAPIError.throw(1);
 
         return (await this.httpWorkflow.sendGet<GetUsersResponse>({
-            path: `${this.endpoint}/users?limit=${startLimit.limit}&start=${startLimit.start}&role=${role}&q=&filter=${filter}`
+            path: `${this.endpoint}/users?limit=${startLimit.limit}&start=${startLimit.start}&role=${role || ''}&q=&filter=${filter}`
         }, GetUsersResponseSchema)).users;
     };
 
