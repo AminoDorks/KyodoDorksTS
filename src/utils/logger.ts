@@ -9,7 +9,8 @@ const initLogger = (enableLogging: boolean): Logger => {
         enabled: enableLogging,
         transport: {
             target: 'pino-pretty',
-        }
+        },
+        
     });
 };
 

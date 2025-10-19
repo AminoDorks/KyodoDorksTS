@@ -11,6 +11,7 @@ import { DorksChatManager } from '../managers/chatManager';
 import { Circle } from '../schemas/kyodo/circle';
 import initLogger from '../utils/logger';
 import { DorksPostManager } from '../managers/postManager';
+import { SocketWorkflow } from './socketworkflow';
 
 export class KyodoDorks {
     private readonly __config: KyodoDorksConfig;
@@ -21,6 +22,7 @@ export class KyodoDorks {
     private __circleManager?: DorksCircleManager;
     private __chatManager?: DorksChatManager;
     private __postManager?: DorksPostManager;
+    private __socketWorkflow?: SocketWorkflow;
 
     constructor(config: KyodoDorksConfig = { enviroment: { scope: 'global' } }) {
         this.__config = config;
@@ -63,6 +65,11 @@ export class KyodoDorks {
     get post (): DorksPostManager {
         if (!this.__postManager) this.__postManager = new DorksPostManager(this.__config, this.__httpWorkflow);
         return this.__postManager;
+    };
+
+    get socket(): SocketWorkflow {
+        if (!this.__socketWorkflow) this.__socketWorkflow = new SocketWorkflow(this);
+        return this.__socketWorkflow;
     };
 
     public as = (circleId: Safe<string>): KyodoDorks => {

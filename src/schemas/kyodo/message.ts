@@ -5,7 +5,7 @@ import { MemberSchema } from './member';
 export const MessageSchema = z.object({
     id: z.string(),
     uid: z.string(),
-    content: z.string(),
+    content: z.string().optional().nullable(),
     author: MemberSchema,
     type: z.number(),
     status: z.number(),
