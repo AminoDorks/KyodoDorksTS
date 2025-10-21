@@ -4,7 +4,7 @@ export const API_URL = 'https://api.kyodo.app';
 export const WS_URL = 'wss://ws.kyodo.app';
 export const APP_URL = 'https://kyodo.app';
 export const SIGNATURE_KEY = '9d93933f-7864-4872-96b2-9541ac03cf6c';
-export const CURRENT_VERSION = '1.1.2';
+export const CURRENT_VERSION = '1.2.2';
 export const TELEGRAM_URL = 'https://t.me/aminodorks';
 export const WEBSOCKET_RECONNECT_TIME = 450000;
 

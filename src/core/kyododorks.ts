@@ -12,6 +12,7 @@ import { Circle } from '../schemas/kyodo/circle';
 import initLogger from '../utils/logger';
 import { DorksPostManager } from '../managers/postManager';
 import { SocketWorkflow } from './socketworkflow';
+import { DorksAdminManager } from '../managers/adminManager';
 
 export class KyodoDorks {
     private readonly __config: KyodoDorksConfig;
@@ -22,6 +23,7 @@ export class KyodoDorks {
     private __circleManager?: DorksCircleManager;
     private __chatManager?: DorksChatManager;
     private __postManager?: DorksPostManager;
+    private __adminManager?: DorksAdminManager;
     private __socketWorkflow?: SocketWorkflow;
 
     constructor(config: KyodoDorksConfig = { enviroment: { scope: 'global' } }) {
@@ -67,6 +69,11 @@ export class KyodoDorks {
         return this.__postManager;
     };
 
+    get admin(): DorksAdminManager {
+        if (!this.__adminManager) this.__adminManager = new DorksAdminManager(this.__config, this.__httpWorkflow);
+        return this.__adminManager;
+    };
+
     get socket(): SocketWorkflow {
         if (!this.__socketWorkflow) this.__socketWorkflow = new SocketWorkflow(this);
         return this.__socketWorkflow;
@@ -76,40 +83,44 @@ export class KyodoDorks {
         return new KyodoDorks({ ...this.__config, enviroment: { scope: 'circle', circleId }, httpWorkflowInstance: this.__httpWorkflow, account: this.security.account });
     };
 
-    private __uploadMedia = async (buffer: Safe<Buffer>, _endpoint: string): Promise<UploadMediaResponse> => {
-        return await this.__httpWorkflow.sendBuffer<UploadMediaResponse>({
+    private __uploadMedia = async (buffer: Safe<Buffer>, _endpoint: string): Promise<string> => {
+        return (await this.__httpWorkflow.sendBuffer<UploadMediaResponse>({
             path: `/v1/g/s/media/target/${_endpoint}`,
             body: buffer,
             contentType: 'image/jpeg'
-        }, UploadMediaResponseSchema);
+        }, UploadMediaResponseSchema)).mediaValue;
     };
 
-    public uploadAvatar = async (buffer: Safe<Buffer>): Promise<UploadMediaResponse> => {
+    public uploadAvatar = async (buffer: Safe<Buffer>): Promise<string> => {
         return await this.__uploadMedia(buffer, 'user-avatar');
     };
 
-    public uploadBanner = async (buffer: Safe<Buffer>): Promise<UploadMediaResponse> => {
+    public uploadBanner = async (buffer: Safe<Buffer>): Promise<string> => {
         return await this.__uploadMedia(buffer, 'user-banner');
     };
 
-    public uploadChatIcon = async (buffer: Safe<Buffer>): Promise<UploadMediaResponse> => {
+    public uploadChatIcon = async (buffer: Safe<Buffer>): Promise<string> => {
         return await this.__uploadMedia(buffer, 'chat-icon');
     };
 
-    public uploadChatBackground = async (buffer: Safe<Buffer>): Promise<UploadMediaResponse> => {
+    public uploadChatBackground = async (buffer: Safe<Buffer>): Promise<string> => {
         return await this.__uploadMedia(buffer, 'chat-background');
     };
 
-    public uploadChatMessage = async (buffer: Safe<Buffer>): Promise<UploadMediaResponse> => {
+    public uploadChatMessage = async (buffer: Safe<Buffer>): Promise<string> => {
         return await this.__uploadMedia(buffer, 'chat-message');
     };
 
-    public uploadPostBackground = async (buffer: Safe<Buffer>): Promise<UploadMediaResponse> => {
+    public uploadPostBackground = async (buffer: Safe<Buffer>): Promise<string> => {
         return await this.__uploadMedia(buffer, 'post-background');
     };
 
-    public uploadPostMedia = async (buffer: Safe<Buffer>): Promise<UploadMediaResponse> => {
+    public uploadPostMedia = async (buffer: Safe<Buffer>): Promise<string> => {
         return await this.__uploadMedia(buffer, 'post-media');
+    };
+
+    public uploadCircleIcon = async (buffer: Safe<Buffer>): Promise<string> => {
+        return await this.__uploadMedia(buffer, 'circle-icon');
     };
 
     public extractLink = async (link: Safe<string>): Promise<ShareLink> => {

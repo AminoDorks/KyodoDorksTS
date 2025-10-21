@@ -21,6 +21,16 @@ export class DorksCircleManager implements DorksManagerImpl {
         this.httpWorkflow = httpWorkflow;
     };
 
+    private __reportBuilder = async (payload: Record<string, string | number>): Promise<BasicResponse> => {
+        return await this.httpWorkflow.sendXSigPost<BasicResponse>({
+            path: `${this.endpoint}/reports/content`,
+            body: JSON.stringify({
+                contentId: payload.contentId || this.config.enviroment.circleId,
+                ...payload
+            })
+        }, BasicResponseSchema);
+    };
+
     public get = async (id?: string): Promise<Circle> => {
         return (await this.httpWorkflow.sendGet<GetCircleResponse>({
             path: `/v1/${id || this.config.enviroment.circleId}/s/circles`
@@ -42,14 +52,10 @@ export class DorksCircleManager implements DorksManagerImpl {
     };
 
     public report = async (reason: Safe<string>): Promise<BasicResponse> => {
-        return await this.httpWorkflow.sendXSigPost<BasicResponse>({
-            path: `${this.endpoint}/reports/content`,
-            body: JSON.stringify({
-                contentId: this.config.enviroment.circleId,
-                contentType: 0,
-                type: 2,
-                reason
-            })
-        }, BasicResponseSchema);
+        return await this.__reportBuilder({ type: 2, contentType: 0, reason })
+    };
+
+    public reportUser = async (userId: Safe<string>, reason: Safe<string>): Promise<BasicResponse> => {
+        return await this.__reportBuilder({ type: 1, contentType: 2, contentId: userId, reason })
     };
 };

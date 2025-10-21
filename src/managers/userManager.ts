@@ -51,7 +51,7 @@ export class DorksUserManager implements DorksManagerImpl {
 
     public banner = async (banner: Safe<string>): Promise<BasicResponse> => { return await this.__editProfileBuilder(JSON.stringify({ banner })); };
 
-    public followStatus = async (userId: Safe<string>): Promise<BasicResponse> => {
+    public follow = async (userId: Safe<string>): Promise<BasicResponse> => {
         return await this.httpWorkflow.sendXSigPost<BasicResponse>({
             path: `${this.endpoint}/users/${userId}/follow/status`,
             body: JSON.stringify({})
