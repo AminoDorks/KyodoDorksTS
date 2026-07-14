@@ -3,7 +3,7 @@ import z from 'zod';
 export const UserSchema = z.object({
   uid: z.string(),
   circleId: z.string(),
-  avatar: z.string().nullable(),
+  avatar: z.string().nullable().optional(),
   avatarFrameId: z.string().nullable(),
   cover: z.string().optional().nullable(),
   nickname: z.string(),
