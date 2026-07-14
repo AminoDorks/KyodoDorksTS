@@ -77,13 +77,17 @@ export class KyodoDorks {
     this.http.proxy = value;
   }
 
-  public upload = async (path: string, target: UploadTarget): Promise<string> =>
+  public upload = async (
+    path: string,
+    target: UploadTarget,
+    contentType: 'image/jpg' | 'video/mp4'
+  ): Promise<string> =>
     (
       await this.http.media<UploadResponse>(
         {
           path: `/g/s/media/target/${target}`,
           body: await file(path).arrayBuffer(),
-          contentType: 'image/jpg',
+          contentType,
         },
         UploadResponseSchema
       )
