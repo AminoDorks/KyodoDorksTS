@@ -5,7 +5,7 @@ export const UserSchema = z.object({
   circleId: z.string(),
   avatar: z.string().nullable(),
   avatarFrameId: z.string().nullable(),
-  cover: z.string().optional(),
+  cover: z.string().optional().nullable(),
   nickname: z.string(),
   username: z.string().optional(),
   status: z.number(),
