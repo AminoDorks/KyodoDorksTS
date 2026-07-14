@@ -10,9 +10,15 @@ import { CircleAPI } from '../api/circle';
 import { PostAPI } from '../api/post';
 import { UserAPI } from '../api/user';
 import { AdminAPI } from '../api/admin';
-import { type UploadResponse, UploadResponseSchema } from '../dto/common.dto';
+import {
+  type GetLinkResolutionResponse,
+  GetLinkResolutionResponseSchema,
+  type UploadResponse,
+  UploadResponseSchema,
+} from '../dto/common.dto';
 import type { DorksConfig, UploadTarget } from '../types/usable';
 import type { Account } from '../entities/account';
+import type { LinkResolution } from '../entities/link-resolution';
 
 export class KyodoDorks {
   private config: DorksConfig;
@@ -112,4 +118,12 @@ export class KyodoDorks {
       return false;
     }
   };
+
+  public linkResolution = async (link: string): Promise<LinkResolution> =>
+    (
+      await this.http.post<GetLinkResolutionResponse>(
+        { path: `/g/s/share-link/resolution`, body: JSON.stringify({ link }) },
+        GetLinkResolutionResponseSchema
+      )
+    ).shareLink;
 }

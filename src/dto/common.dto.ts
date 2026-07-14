@@ -1,5 +1,7 @@
 import z from 'zod';
 
+import { LinkResolutionSchema } from '../entities/link-resolution';
+
 export const CommonResponseSchema = z.object({
   code: z.number(),
   apiCode: z.number(),
@@ -15,5 +17,11 @@ export const UploadResponseSchema = z.object({
   }),
 });
 
+export const GetLinkResolutionResponseSchema = z.object({
+  ...CommonResponseSchema.shape,
+  shareLink: LinkResolutionSchema,
+});
+
 export type CommonResponse = z.infer<typeof CommonResponseSchema>;
 export type UploadResponse = z.infer<typeof UploadResponseSchema>;
+export type GetLinkResolutionResponse = z.infer<typeof GetLinkResolutionResponseSchema>;
