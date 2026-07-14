@@ -1,4 +1,5 @@
 import { file } from 'bun';
+import { any } from 'zod';
 import type { Logger } from 'pino';
 
 import { Http } from './http';
@@ -95,4 +96,20 @@ export class KyodoDorks {
 
   public as = (circleId: string): KyodoDorks =>
     new KyodoDorks({ ...this.config, circleId, account: this.auth.account, http: this.http });
+
+  public healthcheck = async (): Promise<boolean> => {
+    try {
+      await this.http.post<any>(
+        {
+          path: `/g/s/auth/age-check`,
+          body: JSON.stringify({ birthday: 'Mon Feb 21 2007 03:00:00 GMT+0300' }),
+        },
+        any()
+      );
+
+      return true;
+    } catch {
+      return false;
+    }
+  };
 }
