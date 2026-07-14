@@ -6,7 +6,7 @@ import {
 } from '../dto/post.dto';
 import type { Http } from '../client/http';
 import type { Post } from '../entities/post';
-import type { CommentBuilder, ManyPostsBuilder } from '../types/usable';
+import type { CommentBuilder, CreatePostBuilder, ManyPostsBuilder } from '../types/usable';
 
 export class PostAPI {
   private http: Http;
@@ -54,6 +54,22 @@ export class PostAPI {
         {
           path: `${this.endpoint}/posts`,
           body: JSON.stringify({ content, mediaList, parentPostId, type: 4 }),
+        },
+        GetPostResponseSchema
+      )
+    ).post;
+
+  public create = async ({ content, title, cover }: CreatePostBuilder): Promise<Post> =>
+    (
+      await this.http.post<GetPostResponse>(
+        {
+          path: `${this.endpoint}/posts`,
+          body: JSON.stringify({
+            content,
+            title,
+            type: 0,
+            mediaMap: { cover: { isCover: true, src: cover, type: 0 } },
+          }),
         },
         GetPostResponseSchema
       )

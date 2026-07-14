@@ -62,8 +62,11 @@ export type TextMessageBuilder = {
 
 export type CreateChatBuilder = {
   type: number;
-  inviteeUids: string[];
+  inviteeUids?: string[];
   initialMessage?: string;
+  icon?: string;
+  content?: string;
+  name?: string;
 };
 
 export type ManyPostsBuilder = {
@@ -99,4 +102,10 @@ export type BroadcastBuilder = {
   content: string;
   objectId: string;
   objectType: number;
+};
+
+export type CreatePostBuilder = {
+  title: string;
+  content: string;
+  cover: string;
 };

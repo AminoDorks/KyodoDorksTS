@@ -1,6 +1,6 @@
 {
   "name": "kyodo.dorks",
-  "version": "2.6.5",
+  "version": "2.7.5",
   "description": "TypeScript API wrapper for Kyodo: Communities & Chats",
   "keywords": [
     "kyodo",
