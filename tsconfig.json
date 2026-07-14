@@ -1,31 +1,40 @@
 {
   "compilerOptions": {
-    "target": "es2017",
-
-    /* Modules */
-    "module": "nodenext",
-    "resolveJsonModule": true,
+    // Environment setup & latest features
+    "lib": ["ESNext"],
+    "target": "ESNext",
+    "module": "Preserve",
     "moduleDetection": "force",
-
-    /* JavaScript Support */
+    "jsx": "react-jsx",
     "allowJs": true,
+    "types": ["bun-types"],
 
-    /* Emit */
-    "outDir": "./dist",
-
-    /* Interop Constraints */
-    "esModuleInterop": true,
-    "forceConsistentCasingInFileNames": true,
+    // Build output (for npm package)
     "declaration": true,
     "declarationMap": true,
+    "emitDeclarationOnly": true,
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "rewriteRelativeImportExtensions": true,
 
-    /* Type Checking */
+    // Bundler mode
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": false,
+    "verbatimModuleSyntax": true,
+    "noEmit": false,
+
+    // Best practices
     "strict": true,
+    "skipLibCheck": true,
+    "noFallthroughCasesInSwitch": true,
+    "noUncheckedIndexedAccess": true,
+    "noImplicitOverride": true,
 
-    /* Completeness */
-    "skipLibCheck": true
+    // Some stricter flags (disabled by default)
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+    "noPropertyAccessFromIndexSignature": false,
   },
-  "ts-node": {"esm": true},
-  "include": ["src/**/*"],
-  "exclude": ["node_modules", "dist"]
+  "include": ["src/**/*", "tests"],
+  "exclude": ["node_modules", "dist"],
 }
